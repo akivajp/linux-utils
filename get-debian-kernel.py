@@ -10,11 +10,16 @@ import urllib
 import lxml.html
 import os
 import sys
+import subprocess
+
+WGET='wget'
+if subprocess.call("which wget > /dev/null", shell=True) != 0:
+    sys.stdout.write("[Error] wget is not detected, please install\n")
 
 def GetPackages(tag, outdir, arch, flavor):
     try:
         os.makedirs(outdir)
-        print("Made dir: " + outdir)
+        print("Making dir: " + outdir)
     except:
         pass
     h = urllib.urlopen("%s/%s" % (URL,tag))
@@ -29,11 +34,12 @@ def GetPackages(tag, outdir, arch, flavor):
             if not flavor or href.find(flavor) >= 0:
                 packages.append(href)
     if not packages:
-        sys.stderr.write("Inappropriate tag name: %s\n" % tag)
+        sys.stderr.write("[Error] Inappropriate Tag Name: %s\n" % tag)
         sys.exit(1)
     for package in packages:
-        print("Retrieving %s into %s" % (package,outdir))
-        urllib.urlretrieve("%s/%s/%s" % (URL,tag,package), "%s/%s" % (outdir,package))
+        CMD="%s %s/%s/%s -O %s/%s" % (WGET,URL,tag,package,outdir,package)
+        print("[Exec] " + CMD)
+        subprocess.call(CMD, shell=True)
 
 def GetLatestTag():
     h = urllib.urlopen(URL)
