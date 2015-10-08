@@ -37,7 +37,7 @@ def GetPackages(tag, outdir, arch, flavor):
         sys.stderr.write("[Error] Inappropriate Tag Name: %s\n" % tag)
         sys.exit(1)
     for package in packages:
-        CMD="%s %s/%s/%s -O %s/%s" % (WGET,URL,tag,package,outdir,package)
+        CMD="%s -c %s/%s/%s -O %s/%s" % (WGET,URL,tag,package,outdir,package)
         print("[Exec] " + CMD)
         subprocess.call(CMD, shell=True)
 
