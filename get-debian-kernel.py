@@ -35,6 +35,12 @@ def GetPackages(tag, outdir, arch, flavor):
         print("Retrieving %s into %s" % (package,outdir))
         urllib.urlretrieve("%s/%s/%s" % (URL,tag,package), "%s/%s" % (outdir,package))
 
+def GetLatestTag():
+    h = urllib.urlopen(URL)
+    html = lxml.html.fromstring(h.read())
+    anchors = html.xpath('/html/body//a')
+    return anchors[-1].attrib['href'].strip('/')
+
 def main():
     parser = argparse.ArgumentParser('Get Debian Kernel Packages')
     parser.add_argument('outdir', nargs='?', type=str, help="Output Directory")
@@ -44,10 +50,7 @@ def main():
     args = parser.parse_args()
     #print(args)
     if not args.tag:
-        h = urllib.urlopen(URL)
-        html = lxml.html.fromstring(h.read())
-        anchors = html.xpath('/html/body//a')
-        args.tag = anchors[-1].attrib['href'].strip('/')
+        args.tag = GetLatestTag()
         print("Latest Version: " + args.tag)
     if args.outdir and args.arch:
             GetPackages(args.tag, args.outdir, args.arch, args.flavor)
