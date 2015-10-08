@@ -37,9 +37,9 @@ def GetPackages(tag, outdir, arch, flavor):
         sys.stderr.write("[Error] Inappropriate Tag Name: %s\n" % tag)
         sys.exit(1)
     for package in packages:
-        CMD="%s -c %s/%s/%s -O %s/%s" % (WGET,URL,tag,package,outdir,package)
-        print("[Exec] " + CMD)
-        subprocess.call(CMD, shell=True)
+        cmd="%s -c %s/%s/%s -O %s/%s" % (WGET,URL,tag,package,outdir,package)
+        print("[Exec] " + cmd)
+        subprocess.call(cmd, shell=True)
 
 def GetLatestTag():
     h = urllib.urlopen(URL)
