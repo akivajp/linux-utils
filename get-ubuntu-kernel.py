@@ -41,22 +41,38 @@ def GetPackages(tag, outdir, arch, flavor):
         print("[Exec] " + cmd)
         subprocess.call(cmd, shell=True)
 
-def GetLatestTag():
+def GetLatestTags(count = 3):
     h = urllib.urlopen(URL)
     html = lxml.html.fromstring(h.read())
     anchors = html.xpath('/html/body//a')
-    return anchors[-1].attrib['href'].strip('/')
+    tags = []
+    for i in range(1, count+1):
+        tag_name = anchors[-i].attrib['href'].strip('/')
+        time = anchors[-i].getparent().getnext().text.strip()
+        tags.append( {'tag': tag_name, 'time': time} )
+#        tags.append( anchors[-i].attrib['href'].strip('/') )
+    tags.reverse()
+    return tags
+#    return anchors[-count:].attrib['href'].strip('/')
 
 def main():
     parser = argparse.ArgumentParser('Get Debian Kernel Packages')
+    parser.add_argument('cmd', choices=['get', 'show'], help="Command")
     parser.add_argument('outdir', nargs='?', type=str, help="Output Directory")
     parser.add_argument('--arch', '-a', choices=ARCHS, help='Architecture')
     parser.add_argument('--flavor', '-f', choices=FLAVORS, help='Flavor')
     parser.add_argument('--tag', '-t', type=str, help='Kernel Tag Name')
     args = parser.parse_args()
+    if args.cmd == 'show':
+        tags = GetLatestTags(3)
+        for i, tag in enumerate(tags):
+            print("Latest Version [%d]: %s" % (i, tag))
+        return
     #print(args)
     if not args.tag:
-        args.tag = GetLatestTag()
+        tags = GetLatestTags(1)
+        print(tags)
+        args.tag = tags[0]['tag']
         print("Latest Version: " + args.tag)
     if args.outdir and args.arch:
             GetPackages(args.tag, args.outdir, args.arch, args.flavor)
