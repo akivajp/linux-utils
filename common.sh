@@ -3,28 +3,38 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE:-${(%):-%N}}")"; pwd)"
 TIME_STAMP=$(date +"%Y/%m/%d %H:%M:%S")
 
+get_stamp()
+{
+  local FILE=$1
+  local PANE=""
+  local TSTAMP=$(date +"%Y/%m/%d %H:%M:%S")
+  local H=${HOST}
+  if [ "${HOSTNAME}" ]; then
+    H=${HOSTNAME}
+  fi
+  local TPANE=$(tmux display -p "#I.#P" 2> /dev/null)
+  if [ "${TPANE}" ]; then
+    PANE=":${TPANE}"
+  fi
+  echo "${TSTAMP} on ${H}${PANE}"
+}
+export -f get_stamp
+
 show_exec()
 {
-  local PANE=""
-  local TIME_STAMP=$(date +"%Y/%m/%d %H:%M:%S")
-  local PANE=$(tmux display -p "#I.#P" 2> /dev/null)
-  if [ "${PANE}" ]; then
-    PANE=":${PANE}"
-  fi
-  if [ ! "${HOST}" ]; then
-    HOST=$(hostname)
-  fi
-  echo "[exec ${TIME_STAMP} on ${HOST}${PANE}] $*" | tee -a ${LOG}
-  eval $*
+  local STAMP=$(get_stamp)
+  echo "[exec ${STAMP}] $*" | tee -a ${LOG}
+  "$@"
 
   if [ $? -gt 0 ]
   then
-    local RED=31
-    local MSG="[error ${TIME_STAMP} on ${HOST}${PANE}]: $*"
-    echo -e "\033[${RED}m${MSG}\033[m" | tee -a ${LOG}
+    local red=31
+    local msg="[error ${STAMP}]: $*"
+    echo -e "\033[${red}m${msg}\033[m" | tee -a ${LOG}
     exit 1
   fi
 }
+export -f show_exec
 
 proc_args()
 {
