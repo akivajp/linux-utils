@@ -1,9 +1,9 @@
 #!/bin/bash
 
+DEVICE="PS/2 Generic Mouse"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE:-${(%):-%N}}")"; pwd)"
 source ${SCRIPT_DIR}/common.sh
-
-DEVICE="PS/2 Generic Mouse"
 
 usage() {
   echo "usage: $0 command ..."
